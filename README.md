@@ -56,6 +56,11 @@ In addition, unrecognized upper protocols are accessible as bytes via `Raw` enum
 pdu = "1.0"
 ```
 
+The following features are available on this crate:
+
+ * `std` (default: *enabled*) – implement `std::error::Error` and `std::fmt::Display` on this crate's `Error` enum 
+ * `inline` (default: *disabled*) – apply the `#[inline(always)]` attribute to all functions in this crate 
+
 #### Examples
 
 ```rust

@@ -39,6 +39,7 @@ pub enum Ip<'a> {
 
 impl<'a> Ip<'a> {
     /// Constructs either an [`Ipv4Pdu`] or [`Ipv6Pdu`] backed by the provided `buffer`
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn new(buffer: &'a [u8]) -> Result<Self> {
         if buffer.is_empty() {
             return Err(Error::Truncated);
@@ -69,6 +70,7 @@ pub enum Ipv4<'a> {
 
 impl<'a> Ipv4Pdu<'a> {
     /// Constructs an [`Ipv4Pdu`] backed by the provided `buffer`
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn new(buffer: &'a [u8]) -> Result<Self> {
         let pdu = Ipv4Pdu { buffer };
         if buffer.len() < 20 || pdu.computed_ihl() < 20 {
@@ -113,16 +115,19 @@ impl<'a> Ipv4Pdu<'a> {
     }
 
     /// Returns a reference to the entire underlying buffer that was provided during construction
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn buffer(&'a self) -> &'a [u8] {
         self.buffer
     }
 
     /// Returns the slice of the underlying buffer that contains the header part of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn as_bytes(&'a self) -> &'a [u8] {
         &self.buffer[0..self.computed_ihl()]
     }
 
     /// Returns an object representing the inner payload of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn inner(&'a self) -> Result<Ipv4<'a>> {
         let rest = &self.buffer[self.computed_ihl()..];
 
@@ -145,74 +150,91 @@ impl<'a> Ipv4Pdu<'a> {
         }
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn version(&'a self) -> u8 {
         self.buffer[0] >> 4
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn ihl(&'a self) -> u8 {
         self.buffer[0] & 0xF
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn computed_ihl(&'a self) -> usize {
         self.ihl() as usize * 4
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn dscp(&'a self) -> u8 {
         self.buffer[1] >> 2
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn ecn(&'a self) -> u8 {
         self.buffer[1] & 0x3
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn total_length(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[2..=3].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn identification(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[4..=5].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn dont_fragment(&'a self) -> bool {
         self.buffer[6] & 0x40 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn more_fragments(&'a self) -> bool {
         self.buffer[6] & 0x20 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn fragment_offset(&'a self) -> u16 {
         u16::from_be_bytes([self.buffer[6] & 0x1f, self.buffer[7]])
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn ttl(&'a self) -> u8 {
         self.buffer[8]
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn protocol(&'a self) -> u8 {
         self.buffer[9]
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn checksum(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[10..=11].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn computed_checksum(&'a self) -> u16 {
         util::checksum(&[&self.buffer[0..=9], &self.buffer[12..self.computed_ihl()]])
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn source_address(&'a self) -> [u8; 4] {
         let mut source_address = [0u8; 4];
         source_address.copy_from_slice(&self.buffer[12..16]);
         source_address
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn destination_address(&'a self) -> [u8; 4] {
         let mut destination_address = [0u8; 4];
         destination_address.copy_from_slice(&self.buffer[16..20]);
         destination_address
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn options(&'a self) -> Ipv4OptionIterator<'a> {
         Ipv4OptionIterator { buffer: &self.buffer, pos: 20, ihl: self.computed_ihl() }
     }
@@ -268,6 +290,7 @@ pub enum Ipv6<'a> {
 
 impl<'a> Ipv6Pdu<'a> {
     /// Constructs an [`Ipv6Pdu`] backed by the provided `buffer`
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn new(buffer: &'a [u8]) -> Result<Self> {
         let pdu = Ipv6Pdu { buffer };
         if buffer.len() < 40 {

@@ -47,6 +47,7 @@ pub enum Tcp<'a> {
 
 impl<'a> TcpPdu<'a> {
     /// Constructs a [`TcpPdu`] backed by the provided `buffer`
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn new(buffer: &'a [u8]) -> Result<Self> {
         let pdu = TcpPdu { buffer };
         if buffer.len() < 20 || buffer.len() < pdu.computed_data_offset() {
@@ -82,92 +83,114 @@ impl<'a> TcpPdu<'a> {
     }
 
     /// Returns a reference to the entire underlying buffer that was provided during construction
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn buffer(&'a self) -> &'a [u8] {
         self.buffer
     }
 
     /// Returns the slice of the underlying buffer that contains the header part of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn as_bytes(&'a self) -> &'a [u8] {
         &self.buffer[0..self.computed_data_offset()]
     }
 
     /// Returns an object representing the inner payload of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn inner(&'a self) -> Result<Tcp<'a>> {
         Ok(Tcp::Raw(&self.buffer[self.computed_data_offset()..]))
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn source_port(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[0..=1].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn destination_port(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[2..=3].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn sequence_number(&'a self) -> u32 {
         u32::from_be_bytes(self.buffer[4..=7].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn acknowledgement_number(&'a self) -> u32 {
         u32::from_be_bytes(self.buffer[8..=11].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn data_offset(&'a self) -> u8 {
         self.buffer[12] >> 4
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn computed_data_offset(&'a self) -> usize {
         self.data_offset() as usize * 4
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn flags(&'a self) -> u8 {
         self.buffer[13]
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn fin(&'a self) -> bool {
         self.flags() & 0x1 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn syn(&'a self) -> bool {
         self.flags() & 0x2 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn rst(&'a self) -> bool {
         self.flags() & 0x4 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn psh(&'a self) -> bool {
         self.flags() & 0x8 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn ack(&'a self) -> bool {
         self.flags() & 0x10 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn urg(&'a self) -> bool {
         self.flags() & 0x20 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn ecn(&'a self) -> bool {
         self.flags() & 0x40 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn cwr(&'a self) -> bool {
         self.flags() & 0x80 != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn window_size(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[14..=15].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn computed_window_size(&'a self, shift: u8) -> u32 {
         (self.window_size() as u32) << (shift as u32)
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn checksum(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[16..=17].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn computed_checksum(&'a self, ip: &crate::Ip) -> u16 {
         match ip {
             crate::Ip::Ipv4(ipv4) => util::checksum(&[

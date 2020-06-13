@@ -18,6 +18,7 @@
 
 use core::convert::TryInto;
 
+#[cfg_attr(feature = "inline", inline(always))]
 pub fn checksum<I, J>(spans: I) -> u16
 where
     I: IntoIterator<Item = J>,
@@ -33,6 +34,7 @@ where
     !(((accum >> 16) as u16) + (accum as u16))
 }
 
+#[cfg_attr(feature = "inline", inline(always))]
 fn sum(mut buffer: &[u8]) -> u16 {
     let mut accum = 0;
 

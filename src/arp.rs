@@ -28,6 +28,7 @@ pub struct ArpPdu<'a> {
 
 impl<'a> ArpPdu<'a> {
     /// Constructs an [`ArpPdu`] backed by the provided `buffer`
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn new(buffer: &'a [u8]) -> Result<Self> {
         if buffer.len() < 12 {
             return Err(Error::Truncated);
@@ -48,53 +49,64 @@ impl<'a> ArpPdu<'a> {
     }
 
     /// Returns a reference to the entire underlying buffer that was provided during construction
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn buffer(&'a self) -> &'a [u8] {
         self.buffer
     }
 
     /// Returns the slice of the underlying buffer that contains this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn as_bytes(&'a self) -> &'a [u8] {
         &self.buffer[0..28]
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn hardware_type(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[0..=1].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn protocol_type(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[2..=3].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn hardware_length(&'a self) -> u8 {
         self.buffer[4]
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn protocol_length(&'a self) -> u8 {
         self.buffer[5]
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn opcode(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[6..=7].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn sender_hardware_address(&'a self) -> [u8; 6] {
         let mut sender_hardware_address = [0u8; 6];
         sender_hardware_address.copy_from_slice(&self.buffer[8..14]);
         sender_hardware_address
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn sender_protocol_address(&'a self) -> [u8; 4] {
         let mut sender_protocol_address = [0u8; 4];
         sender_protocol_address.copy_from_slice(&self.buffer[14..18]);
         sender_protocol_address
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn target_hardware_address(&'a self) -> [u8; 6] {
         let mut target_hardware_address = [0u8; 6];
         target_hardware_address.copy_from_slice(&self.buffer[18..24]);
         target_hardware_address
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn target_protocol_address(&'a self) -> [u8; 4] {
         let mut target_protocol_address = [0u8; 4];
         target_protocol_address.copy_from_slice(&self.buffer[24..28]);

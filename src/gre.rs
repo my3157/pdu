@@ -37,6 +37,7 @@ pub enum Gre<'a> {
 
 impl<'a> GrePdu<'a> {
     /// Constructs a [`GrePdu`] backed by the provided `buffer`
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn new(buffer: &'a [u8]) -> Result<Self> {
         if buffer.len() < 4 {
             return Err(Error::Truncated);
@@ -53,16 +54,19 @@ impl<'a> GrePdu<'a> {
     }
 
     /// Returns a reference to the entire underlying buffer that was provided during construction
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn buffer(&'a self) -> &'a [u8] {
         self.buffer
     }
 
     /// Returns the slice of the underlying buffer that contains the header part of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn as_bytes(&'a self) -> &'a [u8] {
         &self.buffer[0..self.computed_ihl()]
     }
 
     /// Returns an object representing the inner payload of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn inner(&'a self) -> Result<Gre<'a>> {
         let rest = &self.buffer[self.computed_ihl()..];
         Ok(match self.ethertype() {
@@ -73,6 +77,7 @@ impl<'a> GrePdu<'a> {
         })
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn computed_ihl(&'a self) -> usize {
         let mut ihl = 4;
         if self.has_checksum() {
@@ -87,26 +92,32 @@ impl<'a> GrePdu<'a> {
         ihl
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn version(&'a self) -> u8 {
         self.buffer[1] & 0x07
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn ethertype(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[2..=3].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn has_checksum(&'a self) -> bool {
         (self.buffer[0] & 0x80) != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn has_key(&'a self) -> bool {
         (self.buffer[0] & 0x20) != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn has_sequence_number(&'a self) -> bool {
         (self.buffer[0] & 0x10) != 0
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn checksum(&'a self) -> Option<u16> {
         if self.has_checksum() {
             Some(u16::from_be_bytes(self.buffer[4..=5].try_into().unwrap()))
@@ -115,6 +126,7 @@ impl<'a> GrePdu<'a> {
         }
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn computed_checksum(&'a self) -> Option<u16> {
         if self.has_checksum() {
             Some(util::checksum(&[&self.buffer[0..=3], &self.buffer[6..]]))
@@ -123,6 +135,7 @@ impl<'a> GrePdu<'a> {
         }
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn key(&'a self) -> Option<u32> {
         if self.has_checksum() && self.has_key() {
             Some(u32::from_be_bytes(self.buffer[8..=11].try_into().unwrap()))
@@ -133,6 +146,7 @@ impl<'a> GrePdu<'a> {
         }
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn sequence_number(&'a self) -> Option<u32> {
         if self.has_sequence_number() && self.has_checksum() && self.has_key() {
             Some(u32::from_be_bytes(self.buffer[12..=15].try_into().unwrap()))

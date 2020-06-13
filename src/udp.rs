@@ -34,6 +34,7 @@ pub enum Udp<'a> {
 
 impl<'a> UdpPdu<'a> {
     /// Constructs a [`UdpPdu`] backed by the provided `buffer`
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn new(buffer: &'a [u8]) -> Result<Self> {
         let pdu = UdpPdu { buffer };
         if buffer.len() < 8 || (pdu.length() as usize) < buffer.len() {
@@ -43,36 +44,44 @@ impl<'a> UdpPdu<'a> {
     }
 
     /// Returns a reference to the entire underlying buffer that was provided during construction
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn buffer(&'a self) -> &'a [u8] {
         self.buffer
     }
 
     /// Returns the slice of the underlying buffer that contains the header part of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn as_bytes(&'a self) -> &'a [u8] {
         &self.buffer[0..8]
     }
 
     /// Returns an object representing the inner payload of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn inner(&'a self) -> Result<Udp<'a>> {
         Ok(Udp::Raw(&self.buffer[8..]))
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn source_port(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[0..=1].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn destination_port(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[2..=3].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn length(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[4..=5].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn checksum(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[6..=7].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn computed_checksum(&'a self, ip: &crate::Ip) -> u16 {
         match ip {
             crate::Ip::Ipv4(ipv4) => util::checksum(&[

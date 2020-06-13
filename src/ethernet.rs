@@ -47,6 +47,7 @@ pub enum Ethernet<'a> {
 
 impl<'a> EthernetPdu<'a> {
     /// Constructs an [`EthernetPdu`] backed by the provided `buffer`
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn new(buffer: &'a [u8]) -> Result<Self> {
         if buffer.len() < 14 {
             return Err(Error::Truncated);
@@ -63,16 +64,19 @@ impl<'a> EthernetPdu<'a> {
     }
 
     /// Returns a reference to the entire underlying buffer that was provided during construction
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn buffer(&'a self) -> &'a [u8] {
         self.buffer
     }
 
     /// Returns the slice of the underlying buffer that contains the header part of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn as_bytes(&'a self) -> &'a [u8] {
         &self.buffer[0..self.computed_ihl()]
     }
 
     /// Returns an object representing the inner payload of this PDU
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn inner(&'a self) -> Result<Ethernet<'a>> {
         let rest = &self.buffer[self.computed_ihl()..];
         Ok(match self.ethertype() {
@@ -83,6 +87,7 @@ impl<'a> EthernetPdu<'a> {
         })
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn computed_ihl(&'a self) -> usize {
         match self.tpid() {
             EtherType::DOT1Q => 18,
@@ -90,22 +95,26 @@ impl<'a> EthernetPdu<'a> {
         }
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn source_address(&'a self) -> [u8; 6] {
         let mut source_address = [0u8; 6];
         source_address.copy_from_slice(&self.buffer[6..12]);
         source_address
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn destination_address(&'a self) -> [u8; 6] {
         let mut destination_address = [0u8; 6];
         destination_address.copy_from_slice(&self.buffer[0..6]);
         destination_address
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn tpid(&'a self) -> u16 {
         u16::from_be_bytes(self.buffer[12..=13].try_into().unwrap())
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn ethertype(&'a self) -> u16 {
         match self.tpid() {
             EtherType::DOT1Q => u16::from_be_bytes(self.buffer[16..=17].try_into().unwrap()),
@@ -113,6 +122,7 @@ impl<'a> EthernetPdu<'a> {
         }
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn vlan(&'a self) -> Option<u16> {
         match self.tpid() {
             EtherType::DOT1Q => Some(u16::from_be_bytes(self.buffer[14..=15].try_into().unwrap()) & 0x0FFF),
@@ -120,6 +130,7 @@ impl<'a> EthernetPdu<'a> {
         }
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn vlan_pcp(&'a self) -> Option<u8> {
         match self.tpid() {
             EtherType::DOT1Q => Some((self.buffer[14] & 0xE0) >> 5),
@@ -127,6 +138,7 @@ impl<'a> EthernetPdu<'a> {
         }
     }
 
+    #[cfg_attr(feature = "inline", inline(always))]
     pub fn vlan_dei(&'a self) -> Option<bool> {
         match self.tpid() {
             EtherType::DOT1Q => Some(((self.buffer[14] & 0x10) >> 4) > 0),
