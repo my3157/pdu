@@ -45,8 +45,7 @@ The following protocol hierarchy can be parsed with this library:
      * GREv0
        * ...Ethernet, IPv4, IPv6...
 
-In addition, unrecognized upper protocols are accessible as bytes via `Raw`
-enum variants.
+In addition, unrecognized upper protocols are accessible as bytes via `Raw` enum variants.
 
 ## Getting Started
 
